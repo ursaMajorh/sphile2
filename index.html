@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="id" class="intro-locked">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selamat Ulang Tahun, Sarah</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#FDFBF7',
+            espresso: '#2C221E',
+            terracotta: '#C86D51',
+            tape: 'rgba(240, 230, 210, 0.6)'
+          },
+          fontFamily: {
+            handwriting: ['Caveat', 'cursive'],
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- GSAP & Confetti CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    html.intro-locked,
+    html.intro-locked body {
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    section {
+      padding-block: clamp(4.5rem, 10vh, 7rem);
+      padding-inline: 0.5rem;
+    }
+
+    .section-pending {
+      display: none;
+    }
+
+    .typing-companion {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .next-section-cta {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .birthday-background {
+      overflow: hidden;
+    }
+
+    .background-photo {
+      position: absolute;
+      width: clamp(9rem, 20vw, 16rem);
+      aspect-ratio: 1;
+      object-fit: cover;
+      border: 7px solid rgba(255, 255, 255, 0.65);
+      border-radius: 0.35rem;
+      opacity: 0.12;
+      filter: sepia(0.22) saturate(0.8);
+      box-shadow: 0 14px 28px rgba(44, 34, 30, 0.12);
+      animation: photo-drift 16s ease-in-out infinite alternate;
+    }
+
+    .background-photo:nth-child(1) {
+      top: 7%;
+      left: -5%;
+      transform: rotate(-12deg);
+    }
+
+    .background-photo:nth-child(2) {
+      top: 30%;
+      right: -7%;
+      transform: rotate(10deg);
+      animation-delay: -5s;
+    }
+
+    .background-photo:nth-child(3) {
+      bottom: 9%;
+      left: 4%;
+      transform: rotate(8deg);
+      animation-delay: -9s;
+    }
+
+    .background-photo:nth-child(4) {
+      bottom: -2%;
+      right: 9%;
+      transform: rotate(-7deg);
+      animation-delay: -13s;
+    }
+
+    .birthday-emoji {
+      position: absolute;
+      font-size: clamp(1.5rem, 4vw, 2.8rem);
+      opacity: 0.52;
+      animation: emoji-float 5s ease-in-out infinite;
+    }
+
+    .final-birthday-emojis {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .birthday-emoji--balloon {
+      top: 15%;
+      right: 18%;
+    }
+
+    .birthday-emoji--cake {
+      top: 53%;
+      left: 9%;
+      animation-delay: -1.8s;
+    }
+
+    .birthday-emoji--sparkle {
+      bottom: 13%;
+      right: 15%;
+      animation-delay: -3.2s;
+    }
+
+    .birthday-emoji--gift {
+      bottom: 33%;
+      left: 22%;
+      animation-delay: -4.1s;
+    }
+
+    .polaroid {
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+
+    .washi-tape {
+      background-color: rgba(225, 215, 195, 0.7);
+      backdrop-filter: blur(2px);
+    }
+
+    .birthday-candle {
+      filter: drop-shadow(0 8px 8px rgba(44, 34, 30, 0.12));
+    }
+
+    .candle-flame {
+      transform-origin: center bottom;
+      animation: flicker 0.8s ease-in-out infinite alternate;
+    }
+
+    .candle-flame.is-out {
+      animation: none;
+    }
+
+    .candle-smoke {
+      opacity: 0;
+      transform-origin: center;
+    }
+
+    .warm-sticker {
+      width: 3.4rem;
+      height: 3.4rem;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 2px dashed rgba(200, 109, 81, 0.65);
+      border-radius: 48% 52% 46% 54%;
+      background: #fff8ed;
+      color: #C86D51;
+      font-family: 'Caveat', cursive;
+      font-size: 2.5rem;
+      line-height: 1;
+      box-shadow: 3px 4px 0 rgba(225, 215, 195, 0.8);
+      transform: rotate(-8deg);
+      animation: sticker-float 3.6s ease-in-out infinite;
+    }
+
+    .warm-sticker--blink {
+      position: relative;
+      display: block;
+      transform: rotate(7deg);
+    }
+
+    .sticker-eye {
+      position: absolute;
+      top: 1.25rem;
+      width: 0.34rem;
+      height: 0.52rem;
+      border-radius: 999px;
+      background: #2C221E;
+      transform-origin: center;
+      animation: eye-blink 4.8s ease-in-out infinite;
+    }
+
+    .sticker-eye:first-child {
+      left: 1.05rem;
+    }
+
+    .sticker-eye:nth-child(2) {
+      right: 1.05rem;
+    }
+
+    .sticker-mouth {
+      position: absolute;
+      left: 50%;
+      bottom: 0.9rem;
+      width: 1.25rem;
+      height: 0.6rem;
+      border-bottom: 2px solid #2C221E;
+      border-radius: 0 0 999px 999px;
+      transform: translateX(-50%);
+    }
+
+    @keyframes flicker {
+      from {
+        transform: rotate(-3deg) scale(0.94, 1.04);
+      }
+
+      to {
+        transform: rotate(3deg) scale(1.05, 0.94);
+      }
+    }
+
+    @keyframes sticker-float {
+
+      0%,
+      100% {
+        translate: 0 0;
+      }
+
+      50% {
+        translate: 0 -7px;
+      }
+    }
+
+    @keyframes eye-blink {
+
+      0%,
+      45%,
+      55%,
+      100% {
+        transform: scaleY(1);
+      }
+
+      48%,
+      52% {
+        transform: scaleY(0.08);
+      }
+    }
+
+    @keyframes photo-drift {
+      from {
+        translate: 0 0;
+      }
+
+      to {
+        translate: 1.4rem -2rem;
+      }
+    }
+
+    @keyframes emoji-float {
+
+      0%,
+      100% {
+        translate: 0 0;
+        rotate: -4deg;
+      }
+
+      50% {
+        translate: 0 -0.8rem;
+        rotate: 5deg;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .candle-flame,
+      .warm-sticker,
+      .sticker-eye,
+      .background-photo,
+      .birthday-emoji {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+
+<body
+  class="relative overflow-x-hidden bg-paper text-espresso font-sans antialiased selection:bg-terracotta selection:text-white">
+
+  <audio id="main-audio" loop preload="auto">
+    <source src="assets/Lennon%20Stella%20-%20Older%20Than%20I%20Am.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="birthday-background fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
+    <img class="background-photo" src="assets/images/masa-kecil.jpeg" alt="">
+    <img class="background-photo" src="assets/images/foto-1.jpeg" alt="">
+    <img class="background-photo" src="assets/images/foto-2.jpeg" alt="">
+    <img class="background-photo" src="assets/images/foto-terbaru.jpeg" alt="">
+  </div>
+
+  <!-- OVERLAY AMPLOP (Cover Pertama) -->
+  <div id="envelope-overlay"
+    class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-paper px-4 transition-opacity duration-700">
+    <div id="countdown-screen" class="max-w-sm text-center" aria-live="polite">
+      <div class="mb-6 inline-block rounded-full bg-terracotta/10 px-5 py-3 text-3xl">⏳</div>
+      <div class="warm-sticker warm-sticker--blink mx-auto mb-5" aria-label="Stiker senyum berkedip">
+        <span class="sticker-eye"></span>
+        <span class="sticker-eye"></span>
+        <span class="sticker-mouth"></span>
+      </div>
+      <div class="mt-8 grid grid-cols-4 gap-3 text-terracotta">
+        <div><span id="countdown-days" class="block text-2xl font-semibold">00</span><small
+            class="text-xs text-espresso/60">Hari</small></div>
+        <div><span id="countdown-hours" class="block text-2xl font-semibold">00</span><small
+            class="text-xs text-espresso/60">Jam</small></div>
+        <div><span id="countdown-minutes" class="block text-2xl font-semibold">00</span><small
+            class="text-xs text-espresso/60">Menit</small></div>
+        <div><span id="countdown-seconds" class="block text-2xl font-semibold">00</span><small
+            class="text-xs text-espresso/60">Detik</small></div>
+      </div>
+    </div>
+
+    <div id="envelope-screen" class="hidden max-w-sm text-center">
+      <div class="mb-6 inline-block p-6 rounded-full bg-terracotta/10 text-terracotta animate-pulse">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h1 class="font-handwriting text-4xl font-bold mb-2 text-espresso">To Sarah</h1>
+      <button onclick="openEnvelope()"
+        class="px-6 py-3 bg-terracotta text-white rounded-full font-medium hover:bg-terracotta/90 transition shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+        Buka Surat
+      </button>
+    </div>
+  </div>
+
+  <!-- KONTEN UTAMA WEBSITE -->
+  <main class="relative z-10 max-w-2xl mx-auto px-6 md:px-10 py-0 space-y-24">
+
+    <!-- HEADER -->
+    <header id="page-top" class="min-h-[100svh] flex flex-col justify-center text-center py-16">
+      <span class="text-xs tracking-widest uppercase text-terracotta font-semibold">Special Birthday Wishes</span>
+      <h1 class="font-handwriting text-5xl md:text-6xl font-bold mt-2">Selamat Ulang Tahun, <br>Siti Sarah.</h1>
+      <p class="font-handwriting text-center text-xl text-espresso/80">02 Okt 2005</p>
+      <a href="#birthday-message"
+        class="mt-10 inline-flex self-center items-center gap-2 rounded-full border border-terracotta/40 px-5 py-3 text-sm font-medium text-terracotta transition hover:bg-terracotta/10">
+        Scroll ke bawah! <span aria-hidden="true" class="text-lg leading-none">↓</span>
+      </a>
+    </header>
+
+    <!-- SEKSI 1: Masa Kecil & Refleksi Usia -->
+    <section id="birthday-message" class="flex flex-col justify-center space-y-8">
+      <div class="warm-sticker self-end" aria-label="Stiker senyum">☺</div>
+      <!-- Frame Polaroid Masa Kecil -->
+      <div class="flex justify-center">
+        <div class="polaroid bg-white p-4 pb-8 rounded-sm -rotate-2 max-w-xs relative border border-black/5">
+          <div class="washi-tape absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 border border-black/5"></div>
+          <img src="assets/images/masa-kecil.jpeg" alt="Sarah Masa Kecil"
+            class="w-full h-64 object-cover filter contrast-[1.02]">
+          <p class="font-handwriting text-center text-xl mt-3 text-espresso/80">Masa kecil dulu...</p>
+        </div>
+      </div>
+
+      <div class="space-y-6 font-handwriting text-2xl md:text-3xl leading-relaxed text-espresso/90 text-justify">
+        <p>Gak berasa banget, sekarang kamu udah genap 21 tahun. Semoga bertambahnya umur bukan cuma soal angka yang
+          naik, tapi juga tentang makin banyaknya hal yang kamu paham. Tentang hidup, tentang diri kamu sendiri, dan
+          tentang apa
+          yang emang layak buat kamu perjuangin.</p>
+      </div>
+      <a href="#birthday-wish-2"
+        class="next-section-cta self-center rounded-full border border-terracotta/40 px-5 py-2.5 text-sm font-medium text-terracotta">
+        Lanjutkan ↓
+      </a>
+    </section>
+
+    <!-- SEKSI 2: Harapan & Lingkungan -->
+    <section id="birthday-wish-2" class="flex flex-col justify-center space-y-8">
+      <div class="warm-sticker self-end" aria-label="Stiker senyum">☺</div>
+      <div class="flex justify-center">
+        <div class="polaroid bg-white p-4 pb-8 rounded-sm rotate-2 max-w-xs relative border border-black/5">
+          <div class="washi-tape absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 border border-black/5"></div>
+          <img src="assets/images/foto-1.jpeg" alt="Momen Tersenyum" class="w-full h-64 object-cover">
+          <p class="font-handwriting text-center text-xl mt-3 text-espresso/80">Alasan untuk tersenyum</p>
+        </div>
+      </div>
+
+      <div class="space-y-6 font-handwriting text-2xl md:text-3xl leading-relaxed text-espresso/90 text-justify">
+        <p>Aku berharap kamu menemukan lebih banyak alasan untuk tersenyum di tahun ini. Semoga langkah kamu ke depan
+          dipenuhi orang-orang yang tulus, kesempatan yang baik, dan tempat-tempat di mana kamu bisa merasa cukup aman
+          untuk menjadi diri kamu sendiri.</p>
+      </div>
+      <a href="#birthday-wish-3"
+        class="next-section-cta self-center rounded-full border border-terracotta/40 px-5 py-2.5 text-sm font-medium text-terracotta">
+        Lanjutkan ↓
+      </a>
+    </section>
+
+    <!-- SEKSI 3: Perjuangan & Proses -->
+    <section id="birthday-wish-3" class="flex flex-col justify-center space-y-8">
+      <div class="warm-sticker self-end" aria-label="Stiker senyum">☺</div>
+      <div class="space-y-6 font-handwriting text-2xl md:text-3xl leading-relaxed text-espresso/90 text-justify">
+        <p>Buat hal-hal yang masih menggantung atau belum selesai, semoga perlahan ketemu jalannya. Apa pun yang lagi
+          kamu usahain sekarang, semoga dimudahkan, dan apa pun yang lagi kamu cari, semoga nuntun kamu ke hal yang
+          emang terbaik buat kamu.</p>
+      </div>
+
+      <div class="flex justify-center">
+        <div class="polaroid bg-white p-4 pb-8 rounded-sm -rotate-1 max-w-xs relative border border-black/5">
+          <div class="washi-tape absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 border border-black/5"></div>
+          <img src="assets/images/foto-2.jpeg" alt="Perjalanan Sarah" class="w-full h-64 object-cover">
+          <p class="font-handwriting text-center text-xl mt-3 text-espresso/80">Terus melangkah</p>
+        </div>
+      </div>
+      <a href="#birthday-wish-4"
+        class="next-section-cta self-center rounded-full border border-terracotta/40 px-5 py-2.5 text-sm font-medium text-terracotta">
+        Lanjutkan ↓
+      </a>
+    </section>
+
+    <!-- SEKSI 4: Refleksi Satu Tahun -->
+    <section id="birthday-wish-4" class="flex flex-col justify-center space-y-8">
+      <div class="warm-sticker self-end" aria-label="Stiker senyum">☺</div>
+      <div class="space-y-6 font-handwriting text-2xl md:text-3xl leading-relaxed text-espresso/90 text-justify">
+        <p>Aku gak tahu satu tahun ke depan bakal kayak gimana buat kamu, tapi aku berharap banget pas ulang tahun
+          berikutnya nanti, kamu bisa nengok ke belakang dan senyum bangga... karena ternyata kamu udah tumbuh sejauh
+          ini.</p>
+        <p>Jaga kesehatan ya, jaga diri baik-baik, dan jangan lupa buat nikmatin setiap prosesnya.</p>
+      </div>
+      <a href="#birthday-finale"
+        class="next-section-cta self-center rounded-full border border-terracotta/40 px-5 py-2.5 text-sm font-medium text-terracotta">
+        Lanjutkan ↓
+      </a>
+    </section>
+
+    <!-- SEKSI 5: Penutup & Interaksi Lilin -->
+    <section id="birthday-finale"
+      class="relative flex flex-col justify-center text-center space-y-8 pt-6 border-t border-espresso/10">
+      <div class="flex justify-center">
+        <div class="polaroid bg-white p-4 pb-8 rounded-sm rotate-1 max-w-xs relative border border-black/5">
+          <div class="washi-tape absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 border border-black/5"></div>
+          <img src="assets/images/foto-terbaru.jpeg" alt="Sarah Terbaru" class="w-full h-64 object-cover">
+          <p class="font-handwriting text-center text-xl mt-3 text-espresso/80">Untuk usia yang baru</p>
+        </div>
+      </div>
+
+      <div class="font-handwriting text-3xl md:text-4xl leading-relaxed font-bold text-espresso">
+        <p>Selamat ulang tahun, Siti Sarah.</p>
+        <p class="text-2xl md:text-3xl font-normal text-espresso/90 mt-4 leading-relaxed">
+          Semoga usia yang baru ini membawa lebih banyak kedamaian, keberanian, kebahagiaan, dan hal-hal baik yang tidak
+          pernah kamu sangka sebelumnya.
+        </p>
+      </div>
+
+      <!-- Tombol Interaktif Lilin -->
+      <div class="pt-4 flex flex-col items-center gap-5">
+        <svg class="birthday-candle w-24 h-36" viewBox="0 0 96 144" role="img" aria-label="Lilin ulang tahun menyala">
+          <path d="M25 115h46l-5 12H30z" fill="#E1D7C3" />
+          <rect x="31" y="48" width="34" height="68" rx="4" fill="#C86D51" />
+          <path d="M40 48v68M53 48v68" stroke="#FDFBF7" stroke-width="5" opacity=".8" />
+          <path d="M48 48V37" stroke="#2C221E" stroke-width="2.5" stroke-linecap="round" />
+          <g id="candle-flame" class="candle-flame">
+            <path d="M48 11c-8 10-10 16-10 21a10 10 0 0020 0c0-5-2-11-10-21z" fill="#F5AE4D" />
+            <path d="M48 20c-3 5-4 8-4 11a4 4 0 008 0c0-3-1-6-4-11z" fill="#FDFBF7" />
+          </g>
+          <g id="candle-smoke" class="candle-smoke" fill="none" stroke="#8E827B" stroke-width="2"
+            stroke-linecap="round">
+            <path d="M45 34c-4-5 4-7 0-12" />
+            <path d="M51 36c4-5-4-8 0-13" />
+          </g>
+        </svg>
+        <button id="celebrate-btn" onclick="blowCandle()"
+          class="px-8 py-4 bg-terracotta text-white font-sans font-medium rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition active:scale-95">
+          ✨ Tiup Lilin
+        </button>
+        <button type="button" onclick="triggerSparkles()"
+          class="px-6 py-3 border border-terracotta/40 text-terracotta font-sans text-sm font-medium rounded-full hover:bg-terracotta/10 transition active:scale-95">
+          ✨ Sparkle
+        </button>
+      </div>
+      <div class="warm-sticker warm-sticker--blink self-center" aria-label="Stiker senyum berkedip">
+        <span class="sticker-eye"></span>
+        <span class="sticker-eye"></span>
+        <span class="sticker-mouth"></span>
+      </div>
+      <div class="final-birthday-emojis" aria-hidden="true">
+        <span class="birthday-emoji birthday-emoji--balloon">🎈</span>
+        <span class="birthday-emoji birthday-emoji--cake">🎂</span>
+        <span class="birthday-emoji birthday-emoji--sparkle">✨</span>
+        <span class="birthday-emoji birthday-emoji--gift">🎁</span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer
+    class="relative z-10 mx-auto mb-8 max-w-2xl rounded-2xl border border-espresso/10 bg-white/85 px-6 py-6 text-center text-sm leading-relaxed text-espresso backdrop-blur-sm md:px-10 md:text-base">
+    Nggak ada maksud terselubung atau balasan yang aku tunggu dari ucapan ini. Doaku sederhana aja, semoga kamu selalu
+    bahagia dan baik-baik saja. Lagian, genius seperti aku juga tahu diri kalau jalan hidup kamu itu sepenuhnya milik
+    kamu. Bahkan alat kecerdasan buatan dari Klan Bintang pun nggak bisa ngatur itu, huhhh 😌.
+    <br><i><strong>~dari Ali (Anak Klan Bumi paling jenius)</strong></i>
+  </footer>
+
+  <!-- SCRIPT ANIMASI & INTERAKSI -->
+  <script>
+    function openEnvelope() {
+      const overlay = document.getElementById('envelope-overlay');
+      overlay.classList.add('opacity-0', 'pointer-events-none');
+      document.documentElement.classList.remove('intro-locked');
+      setTimeout(() => overlay.remove(), 700);
+      playMainAudio();
+      initScrollAnimations();
+    }
+
+    function playMainAudio() {
+      document.getElementById('main-audio').play().catch(() => { });
+    }
+
+    function startCountdown() {
+      const launchTime = new Date('2026-09-02T00:00:00+07:00').getTime();
+      const countdownScreen = document.getElementById('countdown-screen');
+      const envelopeScreen = document.getElementById('envelope-screen');
+      const mainAudio = document.getElementById('main-audio');
+      mainAudio.volume = 0.25;
+      const countdownFields = {
+        days: document.getElementById('countdown-days'),
+        hours: document.getElementById('countdown-hours'),
+        minutes: document.getElementById('countdown-minutes'),
+        seconds: document.getElementById('countdown-seconds')
+      };
+
+      const showEnvelope = () => {
+        countdownScreen.classList.add('hidden');
+        envelopeScreen.classList.remove('hidden');
+        playMainAudio();
+        alert("Volumenya Nyalaiin ya!")
+      };
+
+      const updateCountdown = () => {
+        let remaining = launchTime - Date.now();
+        if (remaining <= 0) {
+          showEnvelope();
+          return true;
+        }
+
+        const units = [86400000, 3600000, 60000, 1000];
+        const values = units.map((unit) => {
+          const value = Math.floor(remaining / unit);
+          remaining %= unit;
+          return String(value).padStart(2, '0');
+        });
+        [countdownFields.days, countdownFields.hours, countdownFields.minutes, countdownFields.seconds]
+          .forEach((field, index) => field.textContent = values[index]);
+        return false;
+      };
+
+      if (!updateCountdown()) {
+        const countdownTimer = setInterval(() => {
+          if (updateCountdown()) clearInterval(countdownTimer);
+        }, 1000);
+      }
+    }
+
+    const typingQueue = [];
+    let isTyping = false;
+
+    function initScrollAnimations() {
+      gsap.registerPlugin(ScrollTrigger);
+      const sections = gsap.utils.toArray('main section');
+      gsap.utils.toArray('section > div:not(.flex) p').forEach((paragraph) => {
+        const message = paragraph.textContent.trim();
+        paragraph.dataset.message = message;
+        paragraph.setAttribute('aria-label', message);
+        paragraph.textContent = '';
+      });
+
+      sections.forEach((section) => {
+        [...section.children]
+          .filter((element) => !element.classList.contains('next-section-cta'))
+          .filter((element) => ![...element.children].some((child) => child.tagName === 'P'))
+          .forEach((element) => {
+            element.classList.add('typing-companion');
+            element.setAttribute('aria-hidden', 'true');
+          });
+
+        section.querySelectorAll('.next-section-cta').forEach((cta) => {
+          cta.setAttribute('aria-hidden', 'true');
+          cta.tabIndex = -1;
+        });
+      });
+
+      sections.slice(1).forEach((section) => {
+        section.classList.add('section-pending');
+        section.setAttribute('aria-hidden', 'true');
+      });
+
+      registerTypingForSection(sections[0]);
+    }
+
+    function registerTypingForSection(section) {
+      section.querySelectorAll(':scope > div:not(.flex) p').forEach((paragraph) => {
+        if (paragraph.dataset.typingRegistered === 'true') return;
+        paragraph.dataset.typingRegistered = 'true';
+        ScrollTrigger.create({
+          trigger: paragraph,
+          start: 'top 86%',
+          once: true,
+          onEnter: () => enqueueTyping(paragraph, paragraph.dataset.message)
+        });
+      });
+    }
+
+    function enqueueTyping(paragraph, message) {
+      if (paragraph.dataset.typingQueued === 'true') return;
+      paragraph.dataset.typingQueued = 'true';
+      revealSectionCompanions(paragraph.closest('section'));
+      typingQueue.push({paragraph, message});
+      if (!isTyping) processTypingQueue();
+    }
+
+    function revealSectionCompanions(section) {
+      section.querySelectorAll('.typing-companion').forEach((element) => {
+        if (element.dataset.companionShown === 'true') return;
+        element.dataset.companionShown = 'true';
+        element.removeAttribute('aria-hidden');
+        gsap.to(element, {autoAlpha: 1, duration: 0.45, ease: 'power1.out'});
+      });
+    }
+
+    async function processTypingQueue() {
+      isTyping = true;
+      while (typingQueue.length) {
+        const {paragraph, message} = typingQueue.shift();
+        await typeMessage(paragraph, message);
+        paragraph.dataset.typingComplete = 'true';
+        revealNextSectionWhenReady(paragraph.closest('section'));
+      }
+      isTyping = false;
+    }
+
+    function revealNextSectionWhenReady(section) {
+      const messages = [...section.querySelectorAll(':scope > div:not(.flex) p')];
+      if (!messages.every((paragraph) => paragraph.dataset.typingComplete === 'true')) return;
+
+      revealNextSectionCta(section);
+
+      const nextSection = section.nextElementSibling;
+      if (nextSection?.matches('section')) {
+        nextSection.classList.remove('section-pending');
+        nextSection.removeAttribute('aria-hidden');
+        registerTypingForSection(nextSection);
+        ScrollTrigger.refresh();
+      }
+    }
+
+    function revealNextSectionCta(section) {
+      const cta = section.querySelector('.next-section-cta');
+      if (!cta) return;
+
+      cta.removeAttribute('aria-hidden');
+      cta.tabIndex = 0;
+      gsap.to(cta, {autoAlpha: 1, pointerEvents: 'auto', duration: 0.35, ease: 'power1.out'});
+    }
+
+    function typeMessage(paragraph, message) {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        paragraph.textContent = message;
+        return Promise.resolve();
+      }
+
+      const words = message.match(/\S+\s*/g) || [];
+      return words.reduce((sequence, word) => sequence.then(() => new Promise((resolve) => {
+        const wordElement = document.createElement('span');
+        wordElement.textContent = word;
+        wordElement.style.opacity = '0';
+        paragraph.appendChild(wordElement);
+        gsap.to(wordElement, {
+          opacity: 1,
+          duration: 0.18,
+          ease: 'power1.out'
+        });
+        setTimeout(resolve, 270);
+      })), Promise.resolve());
+    }
+
+    function blowCandle() {
+      const button = document.getElementById('celebrate-btn');
+      const flame = document.getElementById('candle-flame');
+      const smoke = document.getElementById('candle-smoke');
+      if (button.disabled) return;
+
+      button.disabled = true;
+      button.classList.add('opacity-70', 'cursor-default');
+      flame.classList.add('is-out');
+
+      gsap.to(flame, {
+        opacity: 0,
+        scale: 0.15,
+        duration: 0.25,
+        ease: 'power2.in',
+        onComplete: () => {
+          gsap.fromTo(smoke,
+            {opacity: 0.8, y: 0, scale: 0.7},
+            {
+              opacity: 0,
+              y: -22,
+              x: 4,
+              scale: 1.25,
+              duration: 1.1,
+              ease: 'power1.out',
+              onStart: triggerConfetti
+            }
+          );
+        }
+      });
+    }
+
+    function triggerConfetti() {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: {y: 0.6},
+        colors: ['#C86D51', '#FDFBF7', '#E1D7C3']
+      });
+    }
+
+    function triggerSparkles() {
+      confetti({
+        particleCount: 80,
+        spread: 95,
+        startVelocity: 32,
+        scalar: 1.55,
+        origin: {y: 0.72},
+        colors: ['#C86D51', '#F5AE4D', '#E1D7C3']
+      });
+    }
+
+    startCountdown();
+  </script>
+</body>
+
+</html>
